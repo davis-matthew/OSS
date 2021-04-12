@@ -9,10 +9,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class Main {
 
+	private static JFrame frame;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -30,9 +33,7 @@ public class Main {
 	 */
 	public Main() {	
 		initialize();
-		runOSS(); // potentially unnecessary... actions handled by button press handlers
 	}
-
 	
 	/**
 	 * Setup the program
@@ -59,14 +60,14 @@ public class Main {
 		rButton.setFont(new Font("MV Boli",Font.PLAIN,14));
 		rButton.setFocusable(false);
 		rButton.setText("Generate Comments File");
-		rButton.addActionListener(e ->System.out.println("Creating comments file"));
+		rButton.addActionListener(e -> generateComments());
 		
 		JButton bButton = new JButton();
 		bButton.setBounds(100, 100, 250, 100);
 		bButton.setFont(new Font("MV Boli",Font.PLAIN,14));
 		bButton.setFocusable(false);
 		bButton.setText("Apply Spelling Corrections");
-		bButton.addActionListener(e ->System.out.println("Applying spelling corrections"));
+		bButton.addActionListener(e -> spellingCorrections());
 		
 		
 		JButton gButton = new JButton();
@@ -74,7 +75,7 @@ public class Main {
 		gButton.setFont(new Font("MV Boli",Font.PLAIN,14));
 		gButton.setFocusable(false);
 		gButton.setText("Exit Spellchecker");
-		gButton.addActionListener(e -> System.exit(0));
+		gButton.addActionListener(e -> exitOSS());
 		
 		rLabel.setIcon(rIcon);
 		
@@ -107,9 +108,8 @@ public class Main {
 		//greenPanel.setLayout(null);
 		//gLabel.setIcon(gIcon);
 		//greenPanel.add(gLabel);
-		
-		
-		JFrame frame = new JFrame();
+
+		frame = new JFrame();
 		
 		frame.setTitle("MOSS");
 		frame.setSize(1020,620);
@@ -133,25 +133,35 @@ public class Main {
 		greenPanel.add(gButton);
 	}
 	
-	/**
-	 * Runs the main spell checking program
-	 */
-	private void runOSS() {
-		//Testing
-		try {
-			Functions.DownloadGithubRepo(new URL("https://github.com/davis-matthew/twitchirc.git"));
-		} 
-		catch (MalformedURLException e) { e.printStackTrace(); }
-		try {
-			Thread.sleep(8000); //FIXME: NOT A GOOD WAY TO DO THIS AT ALL
-		} 
-		catch (InterruptedException e) { e.printStackTrace(); }
-		
-		
-		Functions.ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/twitchirc/"));
-		
-		Functions.ShrinkAndSortComments();
-		Functions.CreateMasterCommentFile("twitchirc");
-		Functions.ApplyChangesToRepo(new File("twitchirc"));
+	public static final void generateComments() {
+		String s = "";
+		while(s.equals("")) {
+			s = (String)JOptionPane.showInputDialog(
+	                frame,
+	                "Enter a URL",
+	                "Generate Comments File", 
+	                JOptionPane.PLAIN_MESSAGE,
+	                null,
+	                null,
+	                ""
+	        );
+			
+			try { Functions.DownloadGithubRepo(new URL(s)); } 
+			catch (MalformedURLException e) {
+				s = "";
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static final void spellingCorrections() {
+		//Ask user to pick the repo to apply corrections to (dropdown)
+		//File repos = new File("/repos");
+		//repos.listFiles();
+		//Functions.ApplyChangesToRepo(new File(/*PATH GOES HERE*/));
+	}
+	
+	public static final void exitOSS() {
+		System.exit(0);
 	}
 }
