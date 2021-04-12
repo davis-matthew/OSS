@@ -74,7 +74,7 @@ public class Main {
 		gButton.setFont(new Font("MV Boli",Font.PLAIN,14));
 		gButton.setFocusable(false);
 		gButton.setText("Exit Spellchecker");
-		gButton.addActionListener(e ->System.out.println("Bye-bye"));
+		gButton.addActionListener(e -> System.exit(0));
 		
 		rLabel.setIcon(rIcon);
 		
