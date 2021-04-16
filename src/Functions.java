@@ -74,7 +74,7 @@ public class Functions {
 	*   will create the master comment file
 	*/
 	static final String[] regexPatterns = new String[] {
-			"\\/\\*(\\*(?!\\/)|[^*])*\\*\\/",     //Matches /*Comment*/
+			"\\/\\*[^\\*]*\\*+(?:[^/\\*][^*]*\\*+)*/",     //Matches /*Comment*/
 			"/\\*.*?\\*/"     // Matches //Comment
 	};
 	static final CommentStyleSet[] languageMap = new CommentStyleSet[]{ //Refer to the enclosed table "Comment Styles" for the styles & support
