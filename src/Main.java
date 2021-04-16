@@ -1,20 +1,30 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.LayoutManager;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
 
 public class Main {
-
+	
 	private static JFrame frame;
+	
 	
 	/**
 	 * Launch the application.
@@ -60,7 +70,9 @@ public class Main {
 		rButton.setFont(new Font("MV Boli",Font.PLAIN,14));
 		rButton.setFocusable(false);
 		rButton.setText("Generate Comments File");
-		rButton.addActionListener(e -> generateComments());
+		//rButton.addActionListener(e -> generateComments());
+		rButton.addActionListener(e -> newFlowLayout());
+		
 		
 		JButton bButton = new JButton();
 		bButton.setBounds(100, 100, 250, 100);
@@ -111,14 +123,17 @@ public class Main {
 
 		frame = new JFrame();
 		
-		frame.setTitle("MOSS");
+		frame.setTitle("OSS");
 		frame.setSize(1020,620);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//frame.setLayout(newFlowLayout());
+		
+		
 
-		ImageIcon image = new ImageIcon("MOSS.jpg");
+		//ImageIcon image = new ImageIcon("MOSS.jpg");
 	
-		frame.setIconImage(image.getImage());
+		//frame.setIconImage(image.getImage());
 		frame.getContentPane().setBackground(new Color(123,50,250));
 		frame.setLayout(null);
 		frame.setVisible(true);
@@ -133,12 +148,28 @@ public class Main {
 		greenPanel.add(gButton);
 	}
 	
-	public static final void generateComments() {
-		String s = "";
-		while(s.equals("")) {
+	private static void newFlowLayout() {
+		// TODO Auto-generated method stub
+		//return null;
+	
+		//Add Dropdown list of files
+		
+		ImageIcon icon = new ImageIcon("MOSS.jpg");
+		Object[] possibilities = {"url1", "url2", "url3"};
+		
+		String s = (String)JOptionPane.showInputDialog(
+				frame,
+				"Select URL:",
+				"Get the URL for Comment Files:",
+				JOptionPane.PLAIN_MESSAGE,
+				icon,
+				possibilities,
+				"url1");
+		
+		/*while(s.equals("")) {
 			s = (String)JOptionPane.showInputDialog(
 	                frame,
-	                "Enter a URL",
+	                "Enter an URL",
 	                "Generate Comments File", 
 	                JOptionPane.PLAIN_MESSAGE,
 	                null,
@@ -148,6 +179,32 @@ public class Main {
 			
 			try { Functions.DownloadGithubRepo(new URL(s)); } 
 			catch (MalformedURLException e) {
+				System.out.print("Couldn't find url.");
+				s = "";
+				e.printStackTrace();
+			}
+		}*/
+	}
+		
+		
+
+	
+	public static final void generateComments() {
+		String s = "";
+		while(s.equals("")) {
+			s = (String)JOptionPane.showInputDialog(
+	                frame,
+	                "Enter an URL",
+	                "Generate Comments File", 
+	                JOptionPane.PLAIN_MESSAGE,
+	                null,
+	                null,
+	                ""
+	        );
+			
+			try { Functions.DownloadGithubRepo(new URL(s)); } 
+			catch (MalformedURLException e) {
+				System.out.print("Couldn't find url.");
 				s = "";
 				e.printStackTrace();
 			}
@@ -155,6 +212,8 @@ public class Main {
 	}
 	
 	public static final void spellingCorrections() {
+		
+		
 		//Ask user to pick the repo to apply corrections to (dropdown)
 		//File repos = new File("/repos");
 		//repos.listFiles();
