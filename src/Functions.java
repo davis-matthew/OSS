@@ -53,6 +53,11 @@ public class Functions {
 				p = Runtime.getRuntime().exec("sh -c git clone " + repoLink, null, new File(System.getProperty("user.dir") + "/repos/"));
 			}
 			
+			try {
+				p.waitFor(); //hold until process terminates
+			} 
+			catch (InterruptedException e) {}
+			
 			System.out.println("Done Downloading Repo");
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
