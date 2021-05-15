@@ -32,6 +32,7 @@ public class Main {
 	 * Create the application.
 	 */
 	public Main() {	
+		
 		initialize();
 	}
 	
@@ -146,7 +147,7 @@ public class Main {
 	                ""
 	        );
 			
-			try { Functions.DownloadGithubRepo(new URL(s)); } 
+			try { Functions.GenerateCommentFile(new URL(s)); } 
 			catch (MalformedURLException e) {
 				s = "";
 				e.printStackTrace();
@@ -155,6 +156,8 @@ public class Main {
 	}
 	
 	public static final void spellingCorrections() {
+		//Functions.ApplyChangesToRepo(new File(System.getProperty("user.dir") + "/repos/OSSTest"));
+		
 		//Ask user to pick the repo to apply corrections to (dropdown)
 		//File repos = new File("/repos");
 		//repos.listFiles();

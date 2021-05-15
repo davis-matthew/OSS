@@ -34,6 +34,21 @@ public class Functions {
 	*	Given Link, this will download the repository using
 	*   the user's git to repos/reponame/ 
 	*/
+	public static void GenerateCommentFile(URL repo) {
+		String[] repoNameParse = repo.toString().split("/");
+		String name = repoNameParse[repoNameParse.length-1];
+		name = name.substring(0,name.indexOf(".git"));
+		
+		DownloadGithubRepo(repo);
+		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/"+name));
+		ShrinkAndSortComments();
+		CreateMasterCommentFile(name);
+	}
+	
+	/*
+	*	Given Link, this will download the repository using
+	*   the user's git to repos/reponame/ 
+	*/
 	public static void DownloadGithubRepo(URL repoLink) {
 		try {
 			//Create repos folder if it does not exist
@@ -164,11 +179,13 @@ public class Functions {
 		}
 	}
 	public static void ParseCommentsOfRepo(final File repo) {
+		System.out.println("Starting Parsing Files");
 		PropagateFilesOfRepo(repo);
 		for(final File file : files) {
 			System.out.println("Parsing "+file.getName()+" at "+repo.getAbsolutePath());
 			parseFile(file);
 		}
+		System.out.println("Done Parsing Files");
 	}
 	
 	public static void parseFile(final File file) {	
@@ -239,6 +256,7 @@ public class Functions {
 	*	This method shrinks the amount of comments to put in the master file
 	*/
 	public static void ShrinkAndSortComments() {
+		System.out.println("Optimizing Comments");
 		for(int i = 0; i<comments.size(); i++) {
 			for(int j = i+1; j<comments.size(); j++) {
 				if(comments.get(i).getFile().equals(comments.get(j).getFile()) && comments.get(i).overlaps(comments.get(j))) {
@@ -249,12 +267,14 @@ public class Functions {
 			}
 		}
 		Collections.sort(comments,new CommentSort());
+		System.out.println("Done Optimizing Comments");
 	}
 	
 	/*
 	*	This method creates the master comment file [repo]_comment.txt in XML format
 	*/
 	public static void CreateMasterCommentFile(String repoName) {
+		System.out.println("Creating Comment File");
 		try { 
 			BufferedWriter masterFile = new BufferedWriter(new FileWriter(new File(repoName+"_comments.txt"))); 
 			masterFile.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
@@ -264,6 +284,7 @@ public class Functions {
 			masterFile.close();
 		}
 		catch(IOException e) {}
+		System.out.println("Created File "+repoName+"_comments.txt");
 	}
 	
 	/*
@@ -279,7 +300,7 @@ public class Functions {
 			
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			
-			File commentFile = new File(repo.getPath()+"/"+repo.getName()+"_comments.txt");
+			File commentFile = new File(repo.getName()+"_comments.txt");
 			
 			Document doc = builder.parse(commentFile);
 			NodeList commentList = doc.getElementsByTagName("Comment");
