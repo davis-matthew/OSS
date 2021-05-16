@@ -156,7 +156,7 @@ public class Main {
 	}
 	
 	public static final void spellingCorrections() {
-		//Functions.ApplyChangesToRepo(new File(System.getProperty("user.dir") + "/repos/OSSTest")); FIXME: FOR TESTS
+		//Functions.ApplyChangesToRepo(new File(System.getProperty("user.dir") + "/repos/OSSTest")); //FIXME: FOR TESTS
 		
 		//Ask user to pick the repo to apply corrections to (dropdown)
 		//File repos = new File("/repos");

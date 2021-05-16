@@ -95,7 +95,7 @@ public class Functions {
 	*/
 	static final String[] regexPatterns = new String[] {
 			"\\/\\*(\\*(?!\\/)|[^*])*\\*\\/",     //Matches /*Comment*/
-			"/\\*.*?\\*/"     // Matches //Comment
+			"\\/\\/.*"     // Matches //Comment
 	};
 	static final CommentStyleSet[] languageMap = new CommentStyleSet[]{ //Refer to the enclosed table "Comment Styles" for the styles & support
 			new CommentStyleSet(
@@ -103,7 +103,6 @@ public class Functions {
 					new int[] {0,1}            
 			)
 	};
-	
 	
 	
 	static final Map<String,Integer> fileExtensionToCommentStyle = Map.of(
@@ -171,7 +170,7 @@ public class Functions {
 			} 
 			else {
 				try{
-					CommentStyleSet test = languageMap[fileExtensionToCommentStyle.get(file.getName().substring(file.getName().lastIndexOf(".")))]; 
+					CommentStyleSet test = languageMap[fileExtensionToCommentStyle.get(file.getName().substring(file.getName().lastIndexOf(".")))]; //FIXME: probably not a good way to do it
 					files.add(file);
 				}
 				catch(Exception e) { System.out.println("Unhandled language/extension type of file "+file.getName()); }
