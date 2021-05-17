@@ -159,9 +159,34 @@ public class Main {
 		//Functions.ApplyChangesToRepo(new File(System.getProperty("user.dir") + "/repos/OSSTest")); //FIXME: FOR TESTS
 		
 		//Ask user to pick the repo to apply corrections to (dropdown)
-		//File repos = new File("/repos");
-		//repos.listFiles();
+		
+		File f = new File(System.getProperty("user.dir") + "/repos/");
+		File[] array = f.listFiles();
+		String[] arrayStr = new String[array.length];
+		
+		for(int i = 0;i<array.length;i++) {
+			
+			arrayStr[i] = array[i].getName();
+		}
+		
+		
+		
+		
+		
+		
+		
+		String s = (String)JOptionPane.showInputDialog(
+				frame,
+				"Select Repo:",
+				"Get the Repo for Comment Files:",
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				arrayStr,
+				"");
+		
 		//Functions.ApplyChangesToRepo(new File(/*PATH GOES HERE*/));
+		System.out.println(s);
+		
 	}
 	
 	public static final void exitOSS() {
