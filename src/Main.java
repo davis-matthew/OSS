@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -147,31 +148,49 @@ public class Main {
 	                ""
 	        );
 			
+			/* Cancel button returns user to Generate Comments selection */
+			
+			if(s == null) { return; }
+				
+				
+			/*System.out.println(JOptionPane.showConfirmDialog(frame, JOptionPane.OK_CANCEL_OPTION););*/
+			
+				
 			try { Functions.GenerateCommentFile(new URL(s)); } 
 			catch (MalformedURLException e) {
 				s = "";
-				e.printStackTrace();
+				/* URL Entry is invalid */
+				JOptionPane.showMessageDialog(
+		                frame,
+		                "Invalid URL",
+		                "Generate Comments File", 
+		                JOptionPane.ERROR_MESSAGE,
+		                null
+		        );				
 			}
 		}
 	}
 	
 	public static final void spellingCorrections() {
+		
+		
 		//Functions.ApplyChangesToRepo(new File(System.getProperty("user.dir") + "/repos/OSSTest")); //FIXME: FOR TESTS
 		
 		//Ask user to pick the repo to apply corrections to (dropdown)
 		
-		File f = new File(System.getProperty("user.dir") + "/repos/");
-		File[] array = f.listFiles();
-		String[] arrayStr = new String[array.length];
+		File reposFolder = new File(System.getProperty("user.dir") + "/repos/");
+		ArrayList<String> arrayList = new ArrayList<String>();
 		
-		for(int i = 0;i<array.length;i++) {
-			
-			arrayStr[i] = array[i].getName();
+		for(File repo : reposFolder.listFiles()) {
+			if(repo.isDirectory())
+			{ 
+				for(File subfile : repo.listFiles()) {
+					if(subfile.getName().equals(".git") && subfile.isDirectory()) {     //don't include in list if there is not .git file 		
+						arrayList.add(repo.getName());
+					}
+				}
+			}
 		}
-		
-		
-		
-		
 		
 		
 		
@@ -181,8 +200,13 @@ public class Main {
 				"Get the Repo for Comment Files:",
 				JOptionPane.PLAIN_MESSAGE,
 				null,
-				arrayStr,
+				arrayList.toArray(),
 				"");
+		
+		/* Cancel button returns user to Apply Spelling Corrections selection */
+		if(s == null) { return;}
+		
+		
 		
 		//Functions.ApplyChangesToRepo(new File(/*PATH GOES HERE*/));
 		System.out.println(s);

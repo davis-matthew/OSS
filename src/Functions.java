@@ -74,7 +74,6 @@ public class Functions {
 			catch (InterruptedException e) {}
 			
 			System.out.println("Done Downloading Repo");
-			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String response = "", line = "";
 			while((line = reader.readLine()) != null) {
