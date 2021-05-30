@@ -69,17 +69,19 @@ public class Functions {
 			}
 			
 			try {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				String response = "", line = "";
+				while((line = reader.readLine()) != null) {
+					response += line + "\n";
+				}
+				System.out.println(response);
 				p.waitFor(); //hold until process terminates
 			} 
 			catch (InterruptedException e) {}
 			
 			System.out.println("Done Downloading Repo");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String response = "", line = "";
-			while((line = reader.readLine()) != null) {
-				response += line + "\n";
-			}
-			System.out.println(response);
+			
+			
 			
 			//TODO: if an error occurs (authentication, github repo doesn't exist, etc.) then handle it
 			//TODO: wait for dl to complete? Async issues
