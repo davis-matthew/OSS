@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -21,12 +20,8 @@ public class Main {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try { Main OSS = new Main();} 
-				catch (Exception e) { e.printStackTrace(); }
-			}
-		});
+		try { Main OSS = new Main();} 
+		catch (Exception e) { e.printStackTrace(); }
 	}
 
 	/**
