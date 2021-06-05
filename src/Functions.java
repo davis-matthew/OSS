@@ -11,19 +11,16 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Deque;
 
 public class Functions {
 	
@@ -50,46 +47,75 @@ public class Functions {
 	*   the user's git to repos/reponame/ 
 	*/
 	public static void DownloadGithubRepo(URL repoLink) {
-		try {
-			//Create repos folder if it does not exist
-			Files.createDirectories(Paths.get(System.getProperty("user.dir") + "/repos/"));
+		
+		JOptionPane pane = new JOptionPane();
+		
+		String repoName = repoLink.toString().substring(repoLink.toString().lastIndexOf("/")+1,repoLink.toString().indexOf(".git"));
+		String gitCommand = "clone "+repoLink;
+		
+		//Create repos folder if it does not exist
+		if(Files.notExists(Paths.get(System.getProperty("user.dir") + "/repos/" + repoName))) { 
+			try { Files.createDirectories(Paths.get(System.getProperty("user.dir") + "/repos/"));} 
+			catch (IOException e) { e.printStackTrace(); }
+		}
+		else
+		{
+			// display the showInputDialog to see how the user wants to handle if the repos directory already exists
+	        String[] gitOptions = new String[] {"git reset --hard (restore to what's on github)", "git pull (pull changes and keep other edits)"};
 			
-			Process p;
+	        String s = (String)JOptionPane.showInputDialog(
+					pane,
+					"Select Option to Proceed:",
+					"Repo Already Exists!",
+					JOptionPane.WARNING_MESSAGE,
+					null,
+					gitOptions,
+					"");
+	        
+			switch(s) {
+				case("git reset --hard (restore to what's on github)"):{ gitCommand = "reset --hard "; break; }
+				case("git pull (pull changes and keep other edits)"):{ gitCommand = "pull "; break; }
+				default:{ return; }
+			}		
+			int choices = JOptionPane.showOptionDialog(null, 
+			      "Are you Sure?", 
+			      "Directory May Be Overwritten!", 
+			      JOptionPane.YES_NO_OPTION,  
+			      JOptionPane.WARNING_MESSAGE, 
+			      null, null, null);
 			
-			System.out.println("Downloading Repo");
+			if (choices == JOptionPane.NO_OPTION) { return; }
+				
+		}
+ 
+		System.out.println("Downloading Repo " + repoLink + " into " + System.getProperty("user.dir") + "/repos/");
+
+		String shellCommand = "sh -c ";
+		if(System.getProperty("os.name").startsWith("Windows")) { shellCommand = "cmd /c "; }
+		shellCommand += "cd "+System.getProperty("user.dir") + "/repos/"+repoName+" && ";	
+		
+		try { 
+			System.out.println("Running: "+shellCommand+"git "+gitCommand);
+			Process p = Runtime.getRuntime().exec(shellCommand+"git "+gitCommand, null, new File(System.getProperty("user.dir") + "/repos/"));
 			
-			//Windows
-			if(System.getProperty("os.name").startsWith("Windows")) {
-				p = Runtime.getRuntime().exec("cmd /c git clone " + repoLink, null, new File(System.getProperty("user.dir") + "/repos/"));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			String response = "", line = "";
+			while((line = reader.readLine()) != null) {
+				response += line + "\n";
 			}
-			
-			//Unix
-			else {
-				p = Runtime.getRuntime().exec("sh -c git clone " + repoLink, null, new File(System.getProperty("user.dir") + "/repos/"));
-			}
-			
-			try {
-				BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				String response = "", line = "";
-				while((line = reader.readLine()) != null) {
-					response += line + "\n";
-				}
-				System.out.println(response);
-				p.waitFor(); //hold until process terminates
-			} 
-			catch (InterruptedException e) {}
-			
-			System.out.println("Done Downloading Repo");
-			
-			
-			
-			//TODO: if an error occurs (authentication, github repo doesn't exist, etc.) then handle it
-			//TODO: wait for dl to complete? Async issues
+			System.out.println(response);
+			p.waitFor(); //hold until process terminates
 		} 
-		catch (IOException e) { e.printStackTrace(); }
+		catch (InterruptedException | IOException e) {}
+			
+		System.out.println("Done Downloading Repo");
 	}
+		
 	
 	
+	
+
+
 	/*
 	*	After selecting a folder and clicking parse, this
 	*   will create the master comment file
