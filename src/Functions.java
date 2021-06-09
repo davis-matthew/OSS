@@ -37,7 +37,10 @@ public class Functions {
 		name = name.substring(0,name.indexOf(".git"));
 		
 		DownloadGithubRepo(repo);
-		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/"+name));
+		
+		//FIXME: Hi! The problem of not downloading can be in part solved by adding a 4th button. 
+		//Do that first and we should avoid errors
+		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" +name));
 		ShrinkAndSortComments();
 		CreateMasterCommentFile(name);
 	}
@@ -106,7 +109,7 @@ public class Functions {
 			System.out.println(response);
 			p.waitFor(); //hold until process terminates
 		} 
-		catch (InterruptedException | IOException e) {}
+		catch (InterruptedException | IOException e) { e.printStackTrace(); }
 			
 		System.out.println("Done Downloading Repo");
 	}
@@ -318,6 +321,7 @@ public class Functions {
 	*   this will fix the comments in each individual file
 	*/
 	public static void ApplyChangesToRepo(final File repo) {
+		System.out.println("Applying Changes");
 		comments.clear();
 		try{
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -369,12 +373,10 @@ public class Functions {
 			}
 			
 		}
-		catch (ParserConfigurationException e) {} //TODO: consider throws instead of try/catch 
-		catch (SAXException e) {} 
-		catch (IOException e) {}
+		catch (ParserConfigurationException | SAXException | IOException e) { e.printStackTrace(); } //TODO: consider throws instead of trycatch
 		
 		
-		
+		System.out.println("Done Applying Changes");
 	}
 	
 	

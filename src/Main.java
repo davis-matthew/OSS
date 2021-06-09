@@ -203,7 +203,7 @@ public class Main {
 		
 		
 		
-		//Functions.ApplyChangesToRepo(new File(/*PATH GOES HERE*/));
+		Functions.ApplyChangesToRepo(new File(System.getProperty("user.dir") + "/repos/"+s));
 		System.out.println(s);
 		
 	}
