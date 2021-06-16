@@ -9,16 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -267,7 +261,7 @@ public class Functions {
 				while(m.find()) { 
 					comments.add(
 						new Comment(
-							file.getName(),
+							file.getPath(),
 							m.start(),
 							m.end(),
 							m.group()
@@ -306,7 +300,6 @@ public class Functions {
 		System.out.println("Creating Comment File");
 		try { 
 			BufferedWriter masterFile = new BufferedWriter(new FileWriter(new File(repoName+"_comments.txt"))); 
-			masterFile.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 			for(Comment comment : comments) {
 				masterFile.write(comment.toString()+"\n");
 			} 		
@@ -324,31 +317,50 @@ public class Functions {
 		System.out.println("Applying Changes");
 		comments.clear();
 		try{
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setValidating(true);
-			factory.setIgnoringElementContentWhitespace(false);
+			Scanner input = new Scanner(new File(repo.getName()+"_comments.txt"));
 			
-			DocumentBuilder builder = factory.newDocumentBuilder();
+			//{File: filename.ext, Start: ##, End: ##}
+			//	Text
+			//	Text2
+			//
+			//
+			//{File: etc..}
 			
-			File commentFile = new File(repo.getName()+"_comments.txt");
-			
-			Document doc = builder.parse(commentFile);
-			NodeList commentList = doc.getElementsByTagName("Comment");
-			
-			for(int i = 0; i<commentList.getLength(); i++) {
-				Element commentElement = (Element) commentList.item(i);
-				comments.add(
-					new Comment(
-						commentElement.getElementsByTagName("File").item(0).getTextContent(),
-						Integer.parseInt(commentElement.getElementsByTagName("Start").item(0).getTextContent()),
-						Integer.parseInt(commentElement.getElementsByTagName("End").item(0).getTextContent()),
-						commentElement.getElementsByTagName("Text").item(0).getTextContent()
-					)
-				);
+			String info = "";
+			while(input.hasNextLine()) {
+				info = input.nextLine();
+				System.out.println(info);
+				if(info.length()!=0) {
+					
+					String file;
+					int start, end;
+					String text = "";
+					
+					file = info.substring(info.indexOf(" ")+1,info.indexOf(","));
+					info = info.substring(info.indexOf(",")+2);
+					start = Integer.parseInt(info.substring(info.indexOf(" ")+1,info.indexOf(",")));
+					info = info.substring(info.indexOf(",")+2);
+					end = Integer.parseInt(info.substring(info.indexOf(" ")+1,info.indexOf("}")));
+					
+					
+					endofcomment:
+					while(true) {
+						info = input.nextLine();
+						if(info.length()==0) { break endofcomment; }
+						text += info.substring(2) +"\n"; //substring 2 gets rid of tabs
+					}
+					text.substring(0,text.length()-1); //removes last \n... not necessarily smart.
+					
+					comments.add(new Comment(file,start,end,text));
+				}				
 			}
-			
-			Collections.sort(comments,new CommentSort());
-			
+			input.close();
+		}
+		catch (Exception e) { e.printStackTrace(); }
+		
+		Collections.sort(comments,new CommentSort());
+		String contentBefore;
+		try {
 			String fileName = "", content = "", newContent = ""; 
 			int offset = 0, start, end;
 			for(int i = 0; i<comments.size();i++) {
@@ -364,17 +376,24 @@ public class Functions {
 				end = comments.get(i).getEnd();
 				newContent = comments.get(i).getComment();
 				
+				System.out.println("Applying change to "+comments.get(i).toString());
+				System.out.println("start+offset = "+(start+offset));
+				
+				contentBefore = content;
 				content = content.substring(0,start+offset)
 						+ newContent
 						+ content.substring(end+offset);
 				
-				offset += newContent.length() - (end - start);
-			
+				System.out.println("contentBefore:");
+				System.out.println(contentBefore);
+				System.out.println("contentAfter:");
+				System.out.println(content);
+				
+				offset += newContent.length() - (end - start + 1); //end - start + 1 ??? TODO: this is broken, or perhaps the file format parser has issues
+				System.out.println("Generated offset of "+offset);
 			}
-			
 		}
-		catch (ParserConfigurationException | SAXException | IOException e) { e.printStackTrace(); } //TODO: consider throws instead of trycatch
-		
+		catch(Exception e) { e.printStackTrace(); }
 		
 		System.out.println("Done Applying Changes");
 	}
