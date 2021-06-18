@@ -1,4 +1,4 @@
-import java.util.Comparator;
+package data;
 
 public final class Comment {
 	private String fileName;
@@ -25,7 +25,7 @@ public final class Comment {
 	public String getComment() 				{ return comment; }
 	public void setComment(String comment) 	{ this.comment = comment; }
 	
-	public int length() { return endLocation - startLocation; }
+	public int length() 					{ return endLocation - startLocation; }
 	
 	public boolean overlaps(Comment other) {
 		//No pairs of comments should ever get to this function unless they are completely not overlapping
@@ -44,19 +44,4 @@ public final class Comment {
 				+ "\t<Text>\n\t\t"+comment.replaceAll("\n","\n\t\t")+"\n\t</Text>\n"
 		+ "</Comment>";
 	}
-	
-	
-	
-	
-}
-class CommentSort implements Comparator<Comment>
-{
-    // File then position
-    public int compare(Comment a, Comment b)
-    {
-    	int fileComp = a.getFile().compareTo(b.getFile());
-    	
-    	if(fileComp!=0) { return fileComp; }
-    	return b.getStart() - a.getStart();
-    }
 }

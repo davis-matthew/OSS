@@ -1,3 +1,5 @@
+package main;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,13 +10,16 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
-import java.util.ArrayList;
-import java.util.Collections;
+
+import data.Comment;
+import data.CommentSort;
 
 public class Functions {
 	
@@ -94,31 +99,19 @@ public class Functions {
 	*	Given Link, this will download the repository using
 	*   the user's git to repos/reponame/ 
 	*/
-	public static void GenerateCommentFile(URL repo) {
-		String[] repoNameParse = repo.toString().split("/");
-		String name = repoNameParse[repoNameParse.length-1];
-		name = name.substring(0,name.indexOf(".git"));
+	public static void GenerateCommentFile(File repo) {
+		String repoName = repo.getName();
 		
-		//DownloadGithubRepo(repo);
+		//FIXME: Hi! Next steps are:
+		//1.  Use name above to check if comments file already exists
+		//2.  If Yes, warn of overwrite and ask to cancel.
+		//3.  Run below functions
 		
-		//FIXME: Hi! The problem of not downloading can be in part solved by adding a 4th button. 
-		//Do that first and we should avoid errors
-		
-		//Check to see if Comments file already exists - if so, ask the user if he/she wants to cancel
-		
-		
-		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" +name));
+		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" +repoName));
 		ShrinkAndSortComments();
-		
-		CreateMasterCommentFile(name);
+		CreateMasterCommentFile(repoName);
 	}
 			
-
-	
-	
-	
-
-
 	/*
 	*	After selecting a folder and clicking parse, this
 	*   will create the master comment file
@@ -133,7 +126,6 @@ public class Functions {
 					new int[] {0,1}            
 			)
 	};
-	
 	
 	static final Map<String,Integer> fileExtensionToCommentStyle = Map.of(
 			".c", 		0,
@@ -300,7 +292,7 @@ public class Functions {
 	}
 	
 	/*
-	*	This method creates the master comment file [repo]_comment.txt in XML format
+	*	This method creates the master comment file [repo]_comment.txt
 	*/
 	public static void CreateMasterCommentFile(String repoName) {
 		System.out.println("Creating Comment File");
