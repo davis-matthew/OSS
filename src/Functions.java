@@ -20,25 +20,6 @@ public class Functions {
 	
 	//TODO: https://jflex.de/
 	
-	
-	/*
-	*	Given Link, this will download the repository using
-	*   the user's git to repos/reponame/ 
-	*/
-	public static void GenerateCommentFile(URL repo) {
-		String[] repoNameParse = repo.toString().split("/");
-		String name = repoNameParse[repoNameParse.length-1];
-		name = name.substring(0,name.indexOf(".git"));
-		
-		DownloadGithubRepo(repo);
-		
-		//FIXME: Hi! The problem of not downloading can be in part solved by adding a 4th button. 
-		//Do that first and we should avoid errors
-		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" +name));
-		ShrinkAndSortComments();
-		CreateMasterCommentFile(name);
-	}
-	
 	/*
 	*	Given Link, this will download the repository using
 	*   the user's git to repos/reponame/ 
@@ -52,6 +33,7 @@ public class Functions {
 		
 		//Create repos folder if it does not exist
 		if(Files.notExists(Paths.get(System.getProperty("user.dir") + "/repos/" + repoName))) { 
+			
 			try { Files.createDirectories(Paths.get(System.getProperty("user.dir") + "/repos/"));} 
 			catch (IOException e) { e.printStackTrace(); }
 		}
@@ -104,10 +86,34 @@ public class Functions {
 			p.waitFor(); //hold until process terminates
 		} 
 		catch (InterruptedException | IOException e) { e.printStackTrace(); }
-			
-		System.out.println("Done Downloading Repo");
+	
+		System.out.println("Done Downloading Repo " +repoLink+ " into " + System.getProperty("user.dir") + "/repos/" );
 	}
 		
+	/*
+	*	Given Link, this will download the repository using
+	*   the user's git to repos/reponame/ 
+	*/
+	public static void GenerateCommentFile(URL repo) {
+		String[] repoNameParse = repo.toString().split("/");
+		String name = repoNameParse[repoNameParse.length-1];
+		name = name.substring(0,name.indexOf(".git"));
+		
+		//DownloadGithubRepo(repo);
+		
+		//FIXME: Hi! The problem of not downloading can be in part solved by adding a 4th button. 
+		//Do that first and we should avoid errors
+		
+		//Check to see if Comments file already exists - if so, ask the user if he/she wants to cancel
+		
+		
+		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" +name));
+		ShrinkAndSortComments();
+		
+		CreateMasterCommentFile(name);
+	}
+			
+
 	
 	
 	

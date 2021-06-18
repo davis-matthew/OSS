@@ -1,16 +1,22 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class Main {
 
@@ -31,6 +37,7 @@ public class Main {
 		//TEST WITH https://github.com/exeloar/OSSTest.git
 		initialize();
 	}
+
 	
 	/**
 	 * Setup the program
@@ -51,13 +58,31 @@ public class Main {
 		JLabel rLabel = new JLabel();
 		JLabel bLabel = new JLabel();
 		JLabel gLabel = new JLabel();
+		JPanel redPanel = new JPanel();
 		
-		JButton rButton = new JButton();
-		rButton.setBounds(100, 100, 250, 100);
-		rButton.setFont(new Font("MV Boli",Font.PLAIN,14));
-		rButton.setFocusable(false);
-		rButton.setText("Generate Comments File");
-		rButton.addActionListener(e -> generateComments());
+		//Button to download Comments File from github
+		JButton rButton1 = new JButton();
+		//rButton1.setBounds(100, 100, 250, 100);
+		rButton1.setBounds(0, 5, 200, 50);
+		rButton1.setFont(new Font("MV Boli",Font.PLAIN,14));
+		rButton1.setFocusable(false);
+		rButton1.setText("Download Github Repo");
+		redPanel.add(rButton1, BorderLayout.WEST);
+		rButton1.addActionListener(e -> downloadRepos());
+		
+		bLabel.setVerticalAlignment(JLabel.BOTTOM);
+		bLabel.setHorizontalAlignment(JLabel.CENTER);
+		//Button to generate Comments File for analysis
+		JButton rButton2 = new JButton();
+		//rButton2.setBounds(100, 100, 250, 100);
+		rButton2.setBounds(0, 60, 240, 50);
+		rButton2.setFont(new Font("MV Boli",Font.PLAIN,14));
+		rButton2.setFocusable(false);
+		rButton2.setText("Analyze/Generate Comments ");
+		redPanel.add(rButton2, BorderLayout.WEST);
+		redPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+		rButton2.addActionListener(e -> generateComments());
+		
 		
 		JButton bButton = new JButton();
 		bButton.setBounds(100, 100, 250, 100);
@@ -73,7 +98,6 @@ public class Main {
 		gButton.setFocusable(false);
 		gButton.setText("Exit Spellchecker");
 		gButton.addActionListener(e -> exitOSS());
-		
 		rLabel.setIcon(rIcon);
 		
 		bLabel.setIcon(bIcon);
@@ -84,7 +108,8 @@ public class Main {
 		//gLabel.setText("Exit Spellchecker");
 		
 		
-		JPanel redPanel = new JPanel();
+		//JPanel redPanel = new JPanel();
+		redPanel.setLayout(new BorderLayout());
 		redPanel.setBackground(Color.red);
 		redPanel.setBounds(0,0,250,250);
 		
@@ -106,7 +131,8 @@ public class Main {
 		//gLabel.setIcon(gIcon);
 		//greenPanel.add(gLabel);
 
-		frame = new JFrame();
+		JFrame frame = new JFrame();
+		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 		
 		frame.setTitle("MOSS");
 		frame.setSize(1020,620);
@@ -121,7 +147,9 @@ public class Main {
 		frame.setVisible(true);
 		frame.add(redPanel);
 		redPanel.add(rLabel);
-		redPanel.add(rButton);
+		
+		
+		
 		frame.add(bluePanel);
 		bluePanel.add(bLabel);
 		bluePanel.add(bButton);
@@ -135,8 +163,84 @@ public class Main {
 		while(s.equals("")) {
 			s = (String)JOptionPane.showInputDialog(
 	                frame,
-	                "Enter a URL",
-	                "Generate Comments File", 
+	                "Enter a File Location: ",
+	                "Analyze/Generate Comments File", 
+	                JOptionPane.PLAIN_MESSAGE,
+	                null,
+	                null,
+	                ""
+	        );
+			
+			/* Cancel button returns user to Generate Comments selection */
+			
+			if(s == null) { return; }
+				
+				
+			/*System.out.println(JOptionPane.showConfirmDialog(frame, JOptionPane.OK_CANCEL_OPTION););*/
+			
+				
+			try { Functions.GenerateCommentFile(new URL(s)); } 
+			
+			catch (MalformedURLException e) {
+				s = "";
+				/* URL Entry is invalid */
+				JOptionPane.showMessageDialog(
+		                frame,
+		                "Invalid File location!",
+		                "Analyze/Generate Comments File", 
+		                JOptionPane.ERROR_MESSAGE,
+		                null
+		        );				
+			}
+		}
+	}
+	
+	public static final void downloadRepos() {
+		String s = "";
+		while(s.equals("")) {
+			s = (String)JOptionPane.showInputDialog(
+	                frame,
+	                "Enter a github URL:",
+	                "Download GitHub Repos", 
+	                JOptionPane.PLAIN_MESSAGE,
+	                null,
+	                null,
+	                ""
+	        );
+			
+			/* Cancel button returns user to Download Repos selection */
+			
+			if(s == null) { return; }
+				
+				
+			/*System.out.println(JOptionPane.showConfirmDialog(frame, JOptionPane.OK_CANCEL_OPTION););*/
+			
+			//Needs to be modified for Download Repos
+			
+			try { Functions.DownloadGithubRepo(new URL(s)); } 
+			catch (MalformedURLException e) {
+				s = "";
+				/* URL Entry is invalid */
+				JOptionPane.showMessageDialog(
+		                frame,
+		                "Invalid URL",
+		                "Generate Comments File", 
+		                JOptionPane.ERROR_MESSAGE,
+		                null
+		        );				
+			}
+		}
+	}
+	
+	
+	
+	public static final void downloadComments() {
+		String s = "";
+		while(s.equals("")) {
+			s = (String)JOptionPane.showInputDialog(
+	                frame,
+	                "Enter a URL:",
+	                "Download Comments File", 
 	                JOptionPane.PLAIN_MESSAGE,
 	                null,
 	                null,
@@ -166,6 +270,7 @@ public class Main {
 		}
 	}
 	
+	
 	public static final void spellingCorrections() {
 		
 		
@@ -184,6 +289,19 @@ public class Main {
 						arrayList.add(repo.getName());
 					}
 				}
+			}
+			
+			try { Functions.ApplyChangesToRepo(reposFolder); } 
+			catch (Exception e) {
+				String s = "";
+				/* URL Entry is invalid */
+				JOptionPane.showMessageDialog(
+		                frame,
+		                "Invalid URL",
+		                "Generate Comments File", 
+		                JOptionPane.ERROR_MESSAGE,
+		                null
+		        );				
 			}
 		}
 		
