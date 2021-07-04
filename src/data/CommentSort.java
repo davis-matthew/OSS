@@ -9,6 +9,6 @@ public class CommentSort implements Comparator<Comment>
     {
     	int fileComp = a.getFile().compareTo(b.getFile());
     	if(fileComp!=0) { return fileComp; }
-    	return b.getStart() - a.getStart();
+    	return a.getStart() - b.getStart();
     }
 }

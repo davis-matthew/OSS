@@ -3,6 +3,7 @@ package main;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;
@@ -20,6 +22,7 @@ import javax.swing.JOptionPane;
 
 import data.Comment;
 import data.CommentSort;
+import util.Utils;
 
 public class Functions {
 	
@@ -316,7 +319,7 @@ public class Functions {
 		comments.clear();
 		try{
 			Scanner input = new Scanner(new File(repo.getName()+"_comments.txt"));
-			
+			input.useDelimiter("");
 			//{File: filename.ext, Start: ##, End: ##}
 			//	Text
 			//	Text2
@@ -327,9 +330,8 @@ public class Functions {
 			String info = "";
 			while(input.hasNextLine()) {
 				info = input.nextLine();
-				System.out.println(info);
 				if(info.length()!=0) {
-					
+					System.out.println(info);
 					String file;
 					int start, end;
 					String text = "";
@@ -340,31 +342,45 @@ public class Functions {
 					info = info.substring(info.indexOf(",")+2);
 					end = Integer.parseInt(info.substring(info.indexOf(" ")+1,info.indexOf("}")));
 					
-					
-					endofcomment:
+					ArrayList<Character> commentChars = new ArrayList<Character>();
 					while(true) {
-						info = input.nextLine();
-						if(info.length()==0) { break endofcomment; }
-						text += info.substring(2) +"\n"; //substring 2 gets rid of tabs
+						char c;
+						try{c = input.next().charAt(0);}catch(Exception e) {break;}
+						if(c== '\7') { break; }
+						commentChars.add(c);
 					}
-					text.substring(0,text.length()-1); //removes last \n... not necessarily smart.
+					
+					/*
+					 * if(commentChars.get(0) == '/' && commentChars.get(1) == '/') { text +=
+					 * "//"+input.nextLine()+"\n"; } else { while(true) {
+					 * commentChars.add(input.next().charAt(0));
+					 * if(commentChars.get(commentChars.size()-2)=='*' &&
+					 * commentChars.get(commentChars.size()-2)=='/') { break; } } while(true) {
+					 * commentChars.add(input.next().charAt(0));
+					 * if(commentChars.get(commentChars.size()-1)=='\n') { break; } } for(char c :
+					 * commentChars) { text += c; } }
+					 */
+					for(char c : commentChars) { text += c; }
+					text = text.substring(0,text.length()-1); //removes last \n... not necessarily smart.
 					
 					comments.add(new Comment(file,start,end,text));
 				}				
 			}
 			input.close();
 		}
+		catch (FileNotFoundException e) { Utils.missingFile(); return; }
 		catch (Exception e) { e.printStackTrace(); }
 		
 		Collections.sort(comments,new CommentSort());
 		String contentBefore;
+		
 		try {
 			String fileName = "", content = "", newContent = ""; 
 			int offset = 0, start, end;
 			for(int i = 0; i<comments.size();i++) {
 				if(!comments.get(i).getFile().equals(fileName)) {
 					if(!fileName.equals("")) {
-						Files.writeString(Path.of(fileName),content);
+						Files.writeString(Path.of(fileName),content); //FIXME: disabled changing repo.
 					}
 					fileName = comments.get(i).getFile();
 					offset = 0;
@@ -378,17 +394,19 @@ public class Functions {
 				System.out.println("start+offset = "+(start+offset));
 				
 				contentBefore = content;
+				
 				content = content.substring(0,start+offset)
 						+ newContent
 						+ content.substring(end+offset);
 				
-				System.out.println("contentBefore:");
+				System.out.println("contentBefore:\n--------");
 				System.out.println(contentBefore);
-				System.out.println("contentAfter:");
-				System.out.println(content);
+				System.out.println("--------\ncontentAfter:\n--------");
+				System.out.println(content+"\n--------");
 				
-				offset += newContent.length() - (end - start + 1); //end - start + 1 ??? TODO: this is broken, or perhaps the file format parser has issues
+				offset += newContent.length() - (end - start); //TODO: this is broken, or perhaps the file format parser has issues
 				System.out.println("Generated offset of "+offset);
+				System.out.println("Other offset "+(content.length()-contentBefore.length()));
 			}
 		}
 		catch(Exception e) { e.printStackTrace(); }

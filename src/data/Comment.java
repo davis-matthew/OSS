@@ -37,11 +37,6 @@ public final class Comment {
 	}
 	
 	public String toString() {
-		return "<Comment>\n"
-				+ "\t<File>\n\t\t"+fileName+"\n\t</File>\n"
-				+ "\t<Start>\n\t\t"+startLocation+"\n\t</Start>\n"
-				+ "\t<End>\n\t\t"+endLocation+"\n\t</End>\n"
-				+ "\t<Text>\n\t\t"+comment.replaceAll("\n","\n\t\t")+"\n\t</Text>\n"
-		+ "</Comment>";
+		return "\7{File: "+fileName+", Start: "+startLocation+", End: "+endLocation+"}\n"+ comment;
 	}
 }

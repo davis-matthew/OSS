@@ -20,15 +20,10 @@ public class OSS {
 		initialize();
 	}
 
-	
 	/**
 	 * Setup the program
 	 */
 	private void initialize() { 
 		GraphicsDriver.initializeGraphics(); 
 	}
-	
-	
-	
-	
 }
