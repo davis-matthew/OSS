@@ -37,6 +37,6 @@ public final class Comment {
 	}
 	
 	public String toString() {
-		return "\7{File: "+fileName+", Start: "+startLocation+", End: "+endLocation+"}\n"+ comment;
+		return "\7{File: "+fileName+", Start: "+startLocation+", End: "+endLocation+"}\7\n"+ comment;
 	}
 }

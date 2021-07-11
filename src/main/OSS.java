@@ -18,6 +18,7 @@ public class OSS {
 	public OSS() {	
 		//TEST WITH https://github.com/exeloar/OSSTest.git
 		initialize();
+		runOSS();
 	}
 
 	/**
@@ -25,5 +26,14 @@ public class OSS {
 	 */
 	private void initialize() { 
 		GraphicsDriver.initializeGraphics(); 
+	}
+	
+	private void runOSS() {
+		while(true) {
+		
+			
+			try{ Thread.sleep(10); } catch(Exception e) {} //TODO: This is non-FPS based way to draw
+			//GraphicsDriver.repaint();
+		}		
 	}
 }

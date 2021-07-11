@@ -58,7 +58,7 @@ public class Functions {
 					null,
 					gitOptions,
 					"");
-	        
+	        //FIXME: null doesn't like this
 			switch(s) {
 				case("git reset --hard (restore to what's on github)"):{ gitCommand = "reset --hard "; break; }
 				case("git pull (pull changes and keep other edits)"):{ gitCommand = "pull "; break; }
@@ -79,21 +79,36 @@ public class Functions {
 
 		String shellCommand = "sh -c ";
 		if(System.getProperty("os.name").startsWith("Windows")) { shellCommand = "cmd /c "; }
-		shellCommand += "cd "+System.getProperty("user.dir") + "/repos/"+repoName+" && ";	
+		shellCommand += "cd "+System.getProperty("user.dir") + "/repos/ && ";	
 		
 		try { 
 			System.out.println("Running: "+shellCommand+"git "+gitCommand);
 			Process p = Runtime.getRuntime().exec(shellCommand+"git "+gitCommand, null, new File(System.getProperty("user.dir") + "/repos/"));
 			
-			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			String response = "", line = "";
-			while((line = reader.readLine()) != null) {
-				response += line + "\n";
+			Scanner stdOut = new Scanner(p.getInputStream());
+			Scanner stdErr = new Scanner(p.getErrorStream());
+			boolean hadError = false;
+			
+			while(true) {
+				hadError = false;
+				
+				while(stdOut.hasNextLine()) {
+					System.out.println("Download Process StdOUT: " + stdOut.nextLine());
+				}
+				
+				while(stdErr.hasNextLine()) {
+					System.out.println("Download Process StdERR: " + stdErr.nextLine());
+					hadError = true;
+				}
+				
+				if(!p.isAlive()) { break; }
 			}
-			System.out.println(response);
-			p.waitFor(); //hold until process terminates
+			stdOut.close();
+			stdErr.close();
+			
+			if(hadError) { System.out.println("Cancelling Download"); return; }
 		} 
-		catch (InterruptedException | IOException e) { e.printStackTrace(); }
+		catch (IOException e) { e.printStackTrace(); }
 	
 		System.out.println("Done Downloading Repo " +repoLink+ " into " + System.getProperty("user.dir") + "/repos/" );
 	}
@@ -125,7 +140,7 @@ public class Functions {
 	};
 	static final CommentStyleSet[] languageMap = new CommentStyleSet[]{ //Refer to the enclosed table "Comment Styles" for the styles & support
 			new CommentStyleSet(
-					"C, C++, Go, Java, JavaScript, C#, PHP, Rust",										 
+					"C, C++, Go, Java, JavaScript, C#, PHP, Rust",
 					new int[] {0,1}            
 			)
 	};
