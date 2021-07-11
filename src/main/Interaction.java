@@ -8,22 +8,22 @@ import util.Utils;
 public class Interaction {
 	
 	public static final void downloadRepo() {
-		URL githubURL = Utils.getURL();
-		if(githubURL != null) {
+		URL githubURL;
+		if((githubURL = Utils.getURL()) != null) {
 			Functions.DownloadGithubRepo(githubURL);
 		}
 	}
 	
 	public static final void generateComments() {
-		File repo = Utils.selectRepository();
-		if(repo != null) {
+		File repo;
+		if((repo = Utils.selectRepository()) != null) {
 			Functions.GenerateCommentFile(repo);
 		}
 	}
 	
 	public static final void applyCorrections() {
-		File repo = Utils.selectRepository();
-		if(repo != null) {
+		File repo;
+		if((repo = Utils.selectRepository()) != null) {
 			Functions.ApplyChangesToRepo(repo);
 		}
 	}

@@ -120,11 +120,6 @@ public class Functions {
 	public static void GenerateCommentFile(File repo) {
 		String repoName = repo.getName();
 		
-		//FIXME: Hi! Next steps are:
-		//1.  Use name above to check if comments file already exists
-		//2.  If Yes, warn of overwrite and ask to cancel.
-		//3.  Run below functions
-		
 		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" +repoName));
 		ShrinkAndSortComments();
 		CreateMasterCommentFile(repoName);
@@ -317,7 +312,7 @@ public class Functions {
 		try { 
 			BufferedWriter masterFile = new BufferedWriter(new FileWriter(new File(repoName+"_comments.txt"))); 
 			for(Comment comment : comments) {
-				masterFile.write(comment.toString()+"\n");
+				masterFile.write(comment.toString()+"\n\n");
 			} 		
 			masterFile.close();
 		}
@@ -333,15 +328,7 @@ public class Functions {
 		System.out.println("Applying Changes");
 		comments.clear();
 		try{
-			Scanner input = new Scanner(new File(repo.getName()+"_comments.txt"));
-			input.useDelimiter("");
-			//{File: filename.ext, Start: ##, End: ##}
-			//	Text
-			//	Text2
-			//
-			//
-			//{File: etc..}
-			
+			Scanner input = new Scanner(new File(repo.getName()+"_comments.txt")).useDelimiter("");
 			String info = "";
 			while(input.hasNextLine()) {
 				info = input.nextLine();
@@ -376,7 +363,7 @@ public class Functions {
 					 * commentChars) { text += c; } }
 					 */
 					for(char c : commentChars) { text += c; }
-					text = text.substring(0,text.length()-1); //removes last \n... not necessarily smart.
+					text = text.substring(0,text.length()-2); //removes last \n
 					
 					comments.add(new Comment(file,start,end,text));
 				}				
@@ -387,7 +374,7 @@ public class Functions {
 		catch (Exception e) { e.printStackTrace(); }
 		
 		Collections.sort(comments,new CommentSort());
-		String contentBefore;
+		//String contentBefore;
 		
 		try {
 			String fileName = "", content = "", newContent = ""; 
@@ -395,7 +382,7 @@ public class Functions {
 			for(int i = 0; i<comments.size();i++) {
 				if(!comments.get(i).getFile().equals(fileName)) {
 					if(!fileName.equals("")) {
-						Files.writeString(Path.of(fileName),content); //FIXME: disabled changing repo.
+						Files.writeString(Path.of(fileName),content);
 					}
 					fileName = comments.get(i).getFile();
 					offset = 0;
@@ -405,23 +392,29 @@ public class Functions {
 				end = comments.get(i).getEnd();
 				newContent = comments.get(i).getComment();
 				
-				System.out.println("Applying change to "+comments.get(i).toString());
-				System.out.println("start+offset = "+(start+offset));
+				/*
+				 * System.out.println("Applying change to "+comments.get(i).toString());
+				 * System.out.println("start+offset = "+(start+offset));
+				 */
 				
-				contentBefore = content;
+				//contentBefore = content;
 				
 				content = content.substring(0,start+offset)
 						+ newContent
 						+ content.substring(end+offset);
+				/*
+				 * System.out.println("contentBefore:\n--------");
+				 * System.out.println(contentBefore);
+				 * System.out.println("--------\ncontentAfter:\n--------");
+				 * System.out.println(content+"\n--------");
+				 */
 				
-				System.out.println("contentBefore:\n--------");
-				System.out.println(contentBefore);
-				System.out.println("--------\ncontentAfter:\n--------");
-				System.out.println(content+"\n--------");
-				
-				offset += newContent.length() - (end - start); //TODO: this is broken, or perhaps the file format parser has issues
-				System.out.println("Generated offset of "+offset);
-				System.out.println("Other offset "+(content.length()-contentBefore.length()));
+				offset += newContent.length() - (end - start);
+				/*
+				 * System.out.println("Generated offset of "+offset);
+				 * System.out.println("Other offset "+(content.length()-contentBefore.length()))
+				 * ;
+				 */
 			}
 		}
 		catch(Exception e) { e.printStackTrace(); }
