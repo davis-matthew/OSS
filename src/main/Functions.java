@@ -16,6 +16,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
@@ -162,6 +166,72 @@ public class Functions {
 	
 	//For parallelization of search, consider:
 	
+	ConcurrentLinkedQueue<File> filePointers = new ConcurrentLinkedQueue<File>();
+	void searchProducer(final File repo){
+		ArrayList<File> directories = new ArrayList<File>();
+		directories.add(repo);
+		while(directories.size() != 0) {
+			for(File file : directories.get(0).listFiles())
+			{
+				if (file.isDirectory()) {
+					directories.add(file);
+				}
+				else {
+					try{
+						CommentStyleSet test = languageMap[fileExtensionToCommentStyle.get(file.getName().substring(file.getName().lastIndexOf(".")))]; //FIXME: probably not a good way to do it
+						filePointers.add(file);
+					}
+					catch(Exception e) { System.out.println("Unhandled language/extension type of file "+file.getName()); }
+				}
+			}
+		}
+	}
+	
+	int availableThreads = Runtime.getRuntime().availableProcessors()-1;
+	ArrayList<File> filePointers2 = new ArrayList<File>();
+	Semaphore semaFullSlots = new Semaphore(0);
+	Semaphore semaEmptySlots = new Semaphore(availableThreads);
+	ReentrantLock m = new ReentrantLock();
+	void searchProducer2(final File repo){
+		ArrayList<File> directories = new ArrayList<File>();
+		ArrayList<File> files = new ArrayList<File>();
+		directories.add(repo);
+		while(directories.size() != 0) {
+			for(File file : directories.get(0).listFiles())
+			{
+				if (file.isDirectory()) {
+					directories.add(file);
+				}
+				else {
+					try{
+						CommentStyleSet test = languageMap[fileExtensionToCommentStyle.get(file.getName().substring(file.getName().lastIndexOf(".")))]; //FIXME: probably not a good way to do it
+						files.add(file);
+					}
+					catch(Exception e) { System.out.println("Unhandled language/extension type of file "+file.getName()); }
+				}
+			}
+			try { semaEmptySlots.acquire();} 
+			catch (InterruptedException e) {}
+			m.lock();
+			for(File f : files) { filePointers2.add(f); }
+			m.unlock();
+			semaFullSlots.release(files.size());
+			files.clear();
+		}
+	}
+	void searchConsumer() {
+		while(true) {
+			try {
+				semaFullSlots.acquire();
+			} 
+			catch (InterruptedException e) {}
+			m.lock();
+			File f = filePointers2.get(0);
+			m.unlock();
+			semaEmptySlots.release(1);
+			parseFile(f);
+		}
+	}
 	/*
 	 * Queue Q;
 	 * Mutex m;
