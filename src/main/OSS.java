@@ -4,6 +4,8 @@ import graphics.GraphicsDriver;
 
 public class OSS {
 	
+	
+	public static final double VERSION = 1.0;
 	/**
 	 * Launch the application.
 	 */

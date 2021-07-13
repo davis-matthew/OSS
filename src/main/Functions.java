@@ -38,6 +38,9 @@ public class Functions {
 	*/
 	public static void DownloadGithubRepo(URL repoLink) {
 		
+		
+		//FIXME: git reset && pull need to cd into the repo, clone does not.
+		
 		JOptionPane pane = new JOptionPane();
 		
 		String repoName = repoLink.toString().substring(repoLink.toString().lastIndexOf("/")+1,repoLink.toString().indexOf(".git"));
