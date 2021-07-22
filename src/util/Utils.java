@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.JOptionPane;
@@ -83,18 +84,6 @@ public class Utils {
 	}
 	
 	public final static <E> String listToString(Collection<E> list) {
-		return arrayToString((E[]) list.toArray());
-	}
-
-	public final static <E> String arrayToString(E[] array) {
-		String listStr = "{";
-		for(int i =0;i<array.length;i++) {
-			listStr+= array[i];
-			if(i!=array.length-1) {
-				listStr+=", ";
-			}
-		}
-		listStr+="}";
-		return listStr;
+		return Arrays.toString((E[]) list.toArray());
 	}
 }

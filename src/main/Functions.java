@@ -38,19 +38,25 @@ public class Functions {
 	*/
 	public static void DownloadGithubRepo(URL repoLink) {
 		
+		
+		//FIXME: git reset && pull need to cd into the repo, clone does not.
+		
 		JOptionPane pane = new JOptionPane();
 		
 		String repoName = repoLink.toString().substring(repoLink.toString().lastIndexOf("/")+1,repoLink.toString().indexOf(".git"));
 		String gitCommand = "clone "+repoLink;
+		boolean alreadyExists = false;
 		
 		//Create repos folder if it does not exist
-		if(Files.notExists(Paths.get(System.getProperty("user.dir") + "/repos/" + repoName))) { 
-			
+		if(Files.notExists(Paths.get(System.getProperty("user.dir") + "/repos/"))) { 
 			try { Files.createDirectories(Paths.get(System.getProperty("user.dir") + "/repos/"));} 
 			catch (IOException e) { e.printStackTrace(); }
 		}
-		else
-		{
+		
+		if(Files.exists(Paths.get(System.getProperty("user.dir") + "/repos/" + repoName))) {
+			
+			alreadyExists = true;
+			
 			// display the showInputDialog to see how the user wants to handle if the repos directory already exists
 	        String[] gitOptions = new String[] {"git reset --hard (restore to what's on github)", "git pull (pull changes and keep other edits)"};
 			
@@ -76,45 +82,41 @@ public class Functions {
 			      null, null, null);
 			
 			if (choices == JOptionPane.NO_OPTION) { return; }
-				
-		}
+		}	
  
 		System.out.println("Downloading Repo " + repoLink + " into " + System.getProperty("user.dir") + "/repos/");
 
 		String shellCommand = "sh -c ";
 		if(System.getProperty("os.name").startsWith("Windows")) { shellCommand = "cmd /c "; }
-		shellCommand += "cd "+System.getProperty("user.dir") + "/repos/ && ";	
+		shellCommand += "cd "+System.getProperty("user.dir") + "/repos/";	
+		if(alreadyExists) { shellCommand += repoName; }
+		shellCommand += " && ";
 		
 		try { 
 			System.out.println("Running: "+shellCommand+"git "+gitCommand);
 			Process p = Runtime.getRuntime().exec(shellCommand+"git "+gitCommand, null, new File(System.getProperty("user.dir") + "/repos/"));
 			
-			Scanner stdOut = new Scanner(p.getInputStream());
-			Scanner stdErr = new Scanner(p.getErrorStream());
-			boolean hadError = false;
+			Scanner output = new Scanner(p.getErrorStream());
 			
+			System.out.println("Output from Github:");
+			System.out.println("------------");
 			while(true) {
-				hadError = false;
-				
-				while(stdOut.hasNextLine()) {
-					System.out.println("Download Process StdOUT: " + stdOut.nextLine());
+				while(output.hasNextLine()) {
+					System.out.println("\t"+output.nextLine());
 				}
-				
-				while(stdErr.hasNextLine()) {
-					System.out.println("Download Process StdERR: " + stdErr.nextLine());
-					hadError = true;
-				}
-				
+					
 				if(!p.isAlive()) { break; }
 			}
-			stdOut.close();
-			stdErr.close();
-			
-			if(hadError) { System.out.println("Cancelling Download"); return; }
+			output.close();
+			System.out.println("------------");
 		} 
 		catch (IOException e) { e.printStackTrace(); }
-	
-		System.out.println("Done Downloading Repo " +repoLink+ " into " + System.getProperty("user.dir") + "/repos/" );
+		if(Files.exists(Paths.get(System.getProperty("user.dir") + "/repos/"+repoName))) { 
+			System.out.println("Done Downloading Repo " +repoLink+ " into " + System.getProperty("user.dir") + "/repos/" );
+		}
+		else {
+			System.out.println("Download Failed");
+		}	
 	}
 		
 	/*
@@ -486,9 +488,12 @@ public class Functions {
 				 * ;
 				 */
 			}
+			Files.writeString(Path.of(fileName),content); //Last file changes
 		}
 		catch(Exception e) { e.printStackTrace(); }
 		
+		//TODO: delete/reform comments file? 
+		//or maybe have a timestamp comparison in the top of this apply function, where if any file has a more recent edit date do something special?
 		System.out.println("Done Applying Changes");
 	}
 	
