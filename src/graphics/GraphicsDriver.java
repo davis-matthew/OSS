@@ -94,15 +94,12 @@ public class GraphicsDriver {
 		/*JButton button = new JButton("Button1");
 		button.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panel.add(button);
-
 		button = new JButton("Button2");
 		button.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panel.add(button);
-
 		button = new JButton("Button3");
 		button.setAlignmentX(Component.CENTER_ALIGNMENT);
 		panel.add(button);
-
 		add(panel);*/
 		
 		//====================================
