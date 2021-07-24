@@ -39,7 +39,7 @@ public class OSS {
 		double upversion;
 		try {
 			BufferedReader input = new BufferedReader(new InputStreamReader(new URL("https://open-source-spellchecker.github.io/currentversion/").openConnection().getInputStream()));
-			upversion = Double.parseDouble(input.readLine().substring(17));// Current Version: ##
+			upversion = Double.parseDouble(input.readLine().substring(17)); // Current Version: ##
 			input.close();
 			
 			if (VERSION == upversion) {

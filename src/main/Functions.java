@@ -22,10 +22,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import data.Comment;
 import data.CommentSort;
+import graphics.GraphicsDriver;
 import util.Utils;
 
 public class Functions {
@@ -40,8 +43,6 @@ public class Functions {
 		
 		
 		//FIXME: git reset && pull need to cd into the repo, clone does not.
-		
-		JOptionPane pane = new JOptionPane();
 		
 		String repoName = repoLink.toString().substring(repoLink.toString().lastIndexOf("/")+1,repoLink.toString().indexOf(".git"));
 		String gitCommand = "clone "+repoLink;
@@ -61,7 +62,7 @@ public class Functions {
 	        String[] gitOptions = new String[] {"git reset --hard (restore to what's on github)", "git pull (pull changes and keep other edits)"};
 			
 	        String s = (String)JOptionPane.showInputDialog(
-					pane,
+					GraphicsDriver.frame,
 					"Select Option to Proceed:",
 					"Repo Already Exists!",
 					JOptionPane.WARNING_MESSAGE,
@@ -74,7 +75,8 @@ public class Functions {
 				case("git pull (pull changes and keep other edits)"):{ gitCommand = "pull "; break; }
 				default:{ return; }
 			}		
-			int choices = JOptionPane.showOptionDialog(null, 
+			int choices = JOptionPane.showOptionDialog(
+				  GraphicsDriver.frame, 
 			      "Are you Sure?", 
 			      "Directory May Be Overwritten!", 
 			      JOptionPane.YES_NO_OPTION,  
@@ -380,8 +382,33 @@ public class Functions {
 	*	This method creates the master comment file [repo]_comment.txt
 	*/
 	public static void CreateMasterCommentFile(String repoName) {
-		System.out.println("Creating Comment File");
+		System.out.println("Creating New Comment File");
 		try { 
+			//Check if comments file already exists
+			
+			File f = new File(System.getProperty("user.dir") +"/"+ repoName + "_comments.txt"); 
+			
+			  if(f.exists()) {
+				// create a jframe
+				   
+				  int choices = JOptionPane.showOptionDialog(
+						  GraphicsDriver.frame,
+					      "The Comment file " + f + " already exists.\n Regenerating will delete it. ", 
+					      "The Comment File Already Exists!", 
+					      JOptionPane.OK_CANCEL_OPTION,  
+					      JOptionPane.WARNING_MESSAGE, 
+					      null, null, null);
+					
+					if (choices == JOptionPane.CANCEL_OPTION) { return; }
+					
+					//If OK is selected then delete file
+					
+					f.delete();    
+					System.out.println(f + " is deleted!");
+					
+			  }
+				
+			
 			BufferedWriter masterFile = new BufferedWriter(new FileWriter(new File(repoName+"_comments.txt"))); 
 			for(Comment comment : comments) {
 				masterFile.write(comment.toString()+"\n\n");
@@ -442,8 +469,7 @@ public class Functions {
 			}
 			input.close();
 		}
-		catch (FileNotFoundException e) { Utils.missingFile(); return; }
-		catch (Exception e) { e.printStackTrace(); }
+		catch (Exception e) { Utils.missingFile(); return; }
 		
 		Collections.sort(comments,new CommentSort());
 		//String contentBefore;
@@ -456,6 +482,7 @@ public class Functions {
 					if(!fileName.equals("")) {
 						Files.writeString(Path.of(fileName),content);
 					}
+					
 					fileName = comments.get(i).getFile();
 					offset = 0;
 					content = Files.readString(Path.of(fileName));
