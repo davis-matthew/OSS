@@ -516,6 +516,9 @@ public class Functions {
 				 */
 			}
 			Files.writeString(Path.of(fileName),content); //Last file changes
+			if(!new File(repo.getName()+"_comments.txt").delete()) {
+				System.out.println("Unable to delete comments file. Do not use this outdated file");
+			}
 		}
 		catch(Exception e) { e.printStackTrace(); }
 		
