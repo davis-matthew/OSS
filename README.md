@@ -1,19 +1,27 @@
 # Open Source Spellchecker (OSS)
 An Open Source Code Comment Spellchecker 
 
-### Installation:
-To install oss...
-### How to Use
-to Use OSS...
-From github, download OSS, and run.
-Main Menu displays 4 buttons:
-    1. Download Github Repos
-    	Enter a github url.  If a repo does not exist on the local machine, a repo will be downloaded. If the repo already exists on the local machine, the user chooses git reset-hard (overwrites local machine folder) or git-pull (pulls only changes and keeps other edits).
-    2. Generate Comments File 
-    	A comments file will be generated from the repo that was downloaded from github.  If a comments file already exists on the local machine, the user will acknowledge that this comments file will be overwritten with the new comments file generated.
-    3. Apply Spelling Corrections
-    	After the user applies the spelling corrections to the latest comments file, the changes will be applied to the repo files and sent back to github.
-    4. Exit OSS
-    	The user will exit the OSS program.
+## Installation:
+### Dependencies:
+This project relies on java and maven (ex. `apt-get update && apt-get install -y default-jdk maven`)
+
+### Build and Run:
+To build the tool, `git clone` this repo and run `mvn package`
+
+This will create a jar file 
+"`OSS.jar`". Run the jar using the `java` command or double click
+
+## Using OSS:
+
+Click "**Download Github Repo**" and type in the link of the repo you want to spellcheck
+
+Next, press "**Generate Comments File**" and select this repo in the dropdown. This creates a formatted file of all comments and their locations in the repo
+
+Look through this file and correct any mistakes in spelling
+
+Press the "**Apply Spelling Corrections**" button and the tool will apply your changes and rewrite the comments spread throughout the repo
+
+Now that all files are fixed, you can push your changes
  
-### Contact Us
+## Contact Us
+Contact the OSS developers through an issue to this repository
