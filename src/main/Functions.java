@@ -139,25 +139,33 @@ public class Functions {
 	*/
 	static final String[] regexPatterns = new String[] {
 			"\\/\\*(\\*(?!\\/)|[^*])*\\*\\/",     //Matches /*Comment*/
-			"\\/\\/.*"     // Matches //Comment
+			"\\/\\/.*",     // Matches //Comment
+			
+			"RAWTEXT" //Always keep this last in the list. Will take the entire file as one large comment
 	};
 	static final CommentStyleSet[] languageMap = new CommentStyleSet[]{ //Refer to the enclosed table "Comment Styles" for the styles & support
 			new CommentStyleSet(
 					"C, C++, Go, Java, JavaScript, C#, PHP, Rust",
 					new int[] {0,1}            
+			),
+			new CommentStyleSet(
+					"Markdown, Txt",
+					new int[] {regexPatterns.length-1}
 			)
 	};
 	
-	static final Map<String,Integer> fileExtensionToCommentStyle = Map.of(
-			".c", 		0,
-			".cpp", 	0,
-			".h",		0,
-			".java",	0,
-			".go",		0,
-			".js",		0,
-			".cs",		0,
-			".rs",		0,
-			".php",		0
+	static final Map<String,Integer> fileExtensionToCommentStyle = Map.ofEntries(
+			Map.entry(".c", 	0),
+			Map.entry(".cpp", 	0),
+			Map.entry(".h", 	0),
+			Map.entry(".java", 	0),
+			Map.entry(".go", 	0),
+			Map.entry(".js", 	0),
+			Map.entry(".cs", 	0),
+			Map.entry(".rs", 	0),
+			Map.entry(".php", 	0),
+			Map.entry(".md", 	languageMap.length-1),
+			Map.entry(".txt", 	languageMap.length-1)
 	);
 	static class CommentStyleSet{
 		String name;
@@ -335,6 +343,11 @@ public class Functions {
 			CommentStyleSet style = languageMap[fileExtensionToCommentStyle.get(file.getName().substring(file.getName().lastIndexOf(".")))]; //gets the comment style
 			String content = Files.readString(file.getAbsoluteFile().toPath()); //TODO: absolute path / relative path?
 			
+			if(regexPatterns[style.regexPatterns[0]].equals("RAWTEXT")) {
+				comments.add(new Comment(file.getPath(),0,content.length(),content));
+				return;
+			}
+				
 			Matcher[] mat = new Matcher[style.regexPatterns.length];
 			
 			for(int i =0;i<mat.length;i++) {
@@ -516,14 +529,12 @@ public class Functions {
 				 */
 			}
 			Files.writeString(Path.of(fileName),content); //Last file changes
-			if(!new File(repo.getName()+"_comments.txt").delete()) {
+			if(!new File(repo.getName()+"_comments.txt").delete()) { //TODO: reform comments file instead of delete? 
 				System.out.println("Unable to delete comments file. Do not use this outdated file");
 			}
 		}
 		catch(Exception e) { e.printStackTrace(); }
 		
-		//TODO: delete/reform comments file? 
-		//or maybe have a timestamp comparison in the top of this apply function, where if any file has a more recent edit date do something special?
 		System.out.println("Done Applying Changes");
 	}
 	
