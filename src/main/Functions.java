@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,32 +32,35 @@ import data.CommentSort;
 import graphics.GraphicsDriver;
 import util.Utils;
 
+
 public class Functions {
 	
 	//TODO: https://jflex.de/
 	
 	/*
 	*	Given Link, this will download the repository using
-	*   the user's git to repos/reponame/ 
+	*   the user's git to repos/acctName/reponame/ = repox
 	*/
 	public static void DownloadGithubRepo(URL repoLink) {
 		
-		
+		//https://github.com/serso/android-calculatorpp.git
+				//System.out.println("repoLink " + repoName);
 		//FIXME: git reset && pull need to cd into the repo, clone does not.
-		
+		String acctName = repoLink.toString().split("/")[repoLink.toString().split("/").length-2];
 		String repoName = repoLink.toString().substring(repoLink.toString().lastIndexOf("/")+1,repoLink.toString().indexOf(".git"));
 		String gitCommand = "clone "+repoLink;
 		boolean alreadyExists = false;
 		
 		//Create repos folder if it does not exist
-		if(Files.notExists(Paths.get(System.getProperty("user.dir") + "/repos/"))) { 
-			try { Files.createDirectories(Paths.get(System.getProperty("user.dir") + "/repos/"));} 
+		if(Files.notExists(Paths.get(System.getProperty("user.dir") + "/repos/" + acctName))) { 
+			try { Files.createDirectories(Paths.get(System.getProperty("user.dir") + "/repos/" + acctName));} 
 			catch (IOException e) { e.printStackTrace(); }
 		}
 		
-		if(Files.exists(Paths.get(System.getProperty("user.dir") + "/repos/" + repoName))) {
+		if(Files.exists(Paths.get(System.getProperty("user.dir") + "/repos/" + acctName + "/"+repoName))) {
 			
 			alreadyExists = true;
+			
 			
 			// display the showInputDialog to see how the user wants to handle if the repos directory already exists
 	        String[] gitOptions = new String[] {"git reset --hard (restore to what's on github)", "git pull (pull changes and keep other edits)"};
@@ -86,17 +90,17 @@ public class Functions {
 			if (choices == JOptionPane.NO_OPTION) { return; }
 		}	
  
-		System.out.println("Downloading Repo " + repoLink + " into " + System.getProperty("user.dir") + "/repos/");
+		System.out.println("Downloading Repo " + repoLink + " into " + System.getProperty("user.dir") + "/repos/" + acctName + "/");
 
 		String shellCommand = "sh -c ";
 		if(System.getProperty("os.name").startsWith("Windows")) { shellCommand = "cmd /c "; }
-		shellCommand += "cd "+System.getProperty("user.dir") + "/repos/";	
+		shellCommand += "cd "+System.getProperty("user.dir") + "/repos/" + acctName +"/";	
 		if(alreadyExists) { shellCommand += repoName; }
 		shellCommand += " && ";
 		
 		try { 
 			System.out.println("Running: "+shellCommand+"git "+gitCommand);
-			Process p = Runtime.getRuntime().exec(shellCommand+"git "+gitCommand, null, new File(System.getProperty("user.dir") + "/repos/"));
+			Process p = Runtime.getRuntime().exec(shellCommand+"git "+gitCommand, null, new File(System.getProperty("user.dir") + "/repos/" + acctName + "/"));
 			
 			Scanner output = new Scanner(p.getErrorStream());
 			
@@ -113,24 +117,30 @@ public class Functions {
 			System.out.println("------------");
 		} 
 		catch (IOException e) { e.printStackTrace(); }
-		if(Files.exists(Paths.get(System.getProperty("user.dir") + "/repos/"+repoName))) { 
-			System.out.println("Done Downloading Repo " +repoLink+ " into " + System.getProperty("user.dir") + "/repos/" );
+		if(Files.exists(Paths.get(System.getProperty("user.dir") + "/repos/"+ acctName + "/" + repoName ))) { 
+			System.out.println("Done Downloading Repo " +repoLink+ " into " + System.getProperty("user.dir") + "/repos/" + acctName + "/");
 		}
 		else {
 			System.out.println("Download Failed");
 		}	
 	}
-		
+	
+	private static String getUsername(File f) {
+		return f.getParentFile().getName();
+	}
+	
 	/*
 	*	Given Link, this will download the repository using
-	*   the user's git to repos/reponame/ 
+	*   the user's git to repos/acctName/reponame/ 
 	*/
 	public static void GenerateCommentFile(File repo) {
+		String userName = getUsername(repo);
 		String repoName = repo.getName();
 		
-		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" +repoName));
+
+		ParseCommentsOfRepo(new File(System.getProperty("user.dir") + "/repos/" + userName+"/"+repoName));
 		ShrinkAndSortComments();
-		CreateMasterCommentFile(repoName);
+		CreateMasterCommentFile(userName, repoName);
 	}
 			
 	/*
@@ -304,9 +314,8 @@ public class Functions {
 		System.out.println("Done Parsing Files");
 	}
 	
-	public static void parseFile(final File file) {	
+	public static void parseFile(final File file) {
 		try{
-			
 			//Find Regex Patterns for language
 			//Search for those patterns in the file
 			//Find the longest pattern for each comment (do not keep sub-matches)
@@ -394,13 +403,12 @@ public class Functions {
 	/*
 	*	This method creates the master comment file [repo]_comment.txt
 	*/
-	public static void CreateMasterCommentFile(String repoName) {
+	public static void CreateMasterCommentFile(String userName, String repoName) {
 		System.out.println("Creating New Comment File");
 		try { 
 			//Check if comments file already exists
-			
-			File f = new File(System.getProperty("user.dir") +"/"+ repoName + "_comments.txt"); 
-			
+			File f = new File(System.getProperty("user.dir") +"/"+ userName+"_"+repoName + "_comments.txt"); 
+			System.out.println("Printing out f "+ f);
 			  if(f.exists()) {
 				// create a jframe
 				   
@@ -422,14 +430,14 @@ public class Functions {
 			  }
 				
 			
-			BufferedWriter masterFile = new BufferedWriter(new FileWriter(new File(repoName+"_comments.txt"))); 
+			BufferedWriter masterFile = new BufferedWriter(new FileWriter(f)); 
 			for(Comment comment : comments) {
 				masterFile.write(comment.toString()+"\n\n");
 			} 		
 			masterFile.close();
 		}
 		catch(IOException e) {}
-		System.out.println("Created File "+repoName+"_comments.txt");
+		System.out.println("Created File "+userName+"_"+repoName+"_comments.txt");
 	}
 	
 	/*
@@ -438,9 +446,10 @@ public class Functions {
 	*/
 	public static void ApplyChangesToRepo(final File repo) {
 		System.out.println("Applying Changes");
+		File commentsFile = new File(getUsername(repo)+"_"+repo.getName()+"_comments.txt");
 		comments.clear();
 		try{
-			Scanner input = new Scanner(new File(repo.getName()+"_comments.txt")).useDelimiter("");
+			Scanner input = new Scanner(commentsFile).useDelimiter("");
 			String info = "";
 			while(input.hasNextLine()) {
 				info = input.nextLine();
@@ -529,7 +538,7 @@ public class Functions {
 				 */
 			}
 			Files.writeString(Path.of(fileName),content); //Last file changes
-			if(!new File(repo.getName()+"_comments.txt").delete()) { //TODO: reform comments file instead of delete? 
+			if(!commentsFile.delete()) { //TODO: reform comments file instead of delete? 
 				System.out.println("Unable to delete comments file. Do not use this outdated file");
 			}
 		}

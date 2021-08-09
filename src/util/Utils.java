@@ -46,14 +46,22 @@ public class Utils {
 	}
 	
 	public static final File selectRepository() {
+		
+		
 		ArrayList<String> repoList = new ArrayList<String>();
 		
-		for(File repo : new File(System.getProperty("user.dir") + "/repos/").listFiles()) {
-			if(repo.isDirectory()) {
-				for(File subfile : repo.listFiles()) {
-					//don't include in list if there is not .git file
-					if(subfile.getName().equals(".git") && subfile.isDirectory()) {
-						repoList.add(repo.getName());
+		//String acctName = repoList.toString().split("/")[repoList.toString().split("/").length-2];
+		
+		for(File userName : new File(System.getProperty("user.dir") + "/repos/" ).listFiles()) {
+			if(userName.isDirectory()) {
+				for(File repo : userName.listFiles()) {
+					if(repo.isDirectory()) {
+						for(File subFile : repo.listFiles()) {
+							//don't include in list if there is not .git file
+							if(subFile.getName().equals(".git") && subFile.isDirectory()) {
+								repoList.add(userName.getName()+"/"+repo.getName());
+							}
+						}
 					}
 				}
 			}
