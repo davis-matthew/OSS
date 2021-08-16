@@ -2,18 +2,14 @@ package graphics;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import main.Interaction;
 import main.OSS;
