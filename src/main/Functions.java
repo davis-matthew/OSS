@@ -1,19 +1,14 @@
 package main;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Scanner;
@@ -24,7 +19,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import data.Comment;
@@ -213,7 +207,7 @@ public class Functions {
 	ArrayList<File> filePointers2 = new ArrayList<File>();
 	Semaphore semaFullSlots = new Semaphore(0);
 	Semaphore semaEmptySlots = new Semaphore(availableThreads);
-	ReentrantLock m = new ReentrantLock();
+	Lock m = new ReentrantLock();
 	void searchProducer2(final File repo){
 		ArrayList<File> directories = new ArrayList<File>();
 		ArrayList<File> files = new ArrayList<File>();
@@ -365,15 +359,21 @@ public class Functions {
 			
 			// Every Comment
 			for(Matcher m : mat) {
-				while(m.find()) { 
-					comments.add(
-						new Comment(
-							file.getPath(),
-							m.start(),
-							m.end(),
-							m.group()
-						)
-					);
+				try{
+					while(m.find()) { 
+						comments.add(
+							new Comment(
+								file.getPath(),
+								m.start(),
+								m.end(),
+								m.group()
+							)
+						);
+					}
+				}
+				catch(StackOverflowError e) {
+					e.printStackTrace();
+					return; //Skip this file
 				}
 			}
 		}
