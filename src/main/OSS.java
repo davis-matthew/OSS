@@ -9,7 +9,7 @@ import graphics.GraphicsDriver;
 public class OSS {
 	
 	
-	public static final double VERSION = 1.0;
+	public static final double VERSION = 1.01;
 	/**
 	 * Launch the application.
 	 */
