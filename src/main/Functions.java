@@ -387,16 +387,17 @@ public class Functions {
 	*/
 	public static void ShrinkAndSortComments() {
 		System.out.println("Optimizing Comments");
+		Collections.sort(comments,new CommentSort());
 		for(int i = 0; i<comments.size(); i++) {
 			for(int j = i+1; j<comments.size(); j++) {
-				if(comments.get(i).getFile().equals(comments.get(j).getFile()) && comments.get(i).overlaps(comments.get(j))) {
+				if(!comments.get(i).getFile().equals(comments.get(j).getFile())) {break;}
+				if(comments.get(i).overlaps(comments.get(j))) {
 					if(comments.get(i).length() > comments.get(j).length()) { comments.remove(j); }
 					else { comments.remove(i); }
 					i=0;j=1; //TODO: This is probably not a good solution to the broken iterator problem.
 				}
 			}
 		}
-		Collections.sort(comments,new CommentSort());
 		System.out.println("Done Optimizing Comments");
 	}
 	
