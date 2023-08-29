@@ -1,6 +1,9 @@
 # Open Source Spellchecker (OSS)
 An Open Source Code Comment Spellchecker 
 
+# NOTE: This repo is now archived. Its successor (THE-Spellchecker) is being developed.
+
+
 ## Installation:
 ### Dependencies:
 This project relies on java and maven (ex. `apt-get update && apt-get install -y default-jdk maven`)
